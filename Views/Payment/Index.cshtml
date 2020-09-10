@@ -62,7 +62,7 @@
 <!-- Stripe can be imported via its own CDN, or imported as an ES6 module using NPM -->
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    const stripe = Stripe("");
+    const stripe = Stripe("@ViewBag.PublishableKey");
     document.addEventListener('DOMContentLoaded', () => {
         
         // Instantiate stripe elements
@@ -144,12 +144,14 @@
                 }
             }).then(result => {
                 if (result.error) {
-                    console.log(result);
+                    console.log(result.error);
+                    alert(result.error.message);
                 } else {
                     if (result.paymentIntent.status === 'succeeded') {
                         window.location = '/Payment/Confirmed'
                     } else {
                         console.log(result);
+                        alert(result.paymentIntent.status);
                     }
                 }
             });

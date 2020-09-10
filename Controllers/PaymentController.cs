@@ -1,43 +1,53 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Stripe;
 
 namespace store_front.Controllers
 {
     public class PaymentController : Controller
     {
+        private readonly IConfiguration _configuration;
+
+        public PaymentController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         /**
          * Display payment page
          *
          * (Shortcut PoC, at this point the user has a complete basket and has clicked "pay now")
          */
+        [Route("Payment/Index")]
         public IActionResult Index()
         {
-
-            var paymentIntent = CreatePaymentIntent();
+            var paymentIntent = CreatePaymentIntent(10000);
+            var publishableKey = _configuration.GetSection("Stripe")["PublishableKey"];
+            
             ViewBag.IntentSecret = paymentIntent.ClientSecret;
+            ViewBag.PublishableKey = publishableKey;
 
             return View();
-
         }
 
         /**
          * Create paymentIntent
          */
-        private PaymentIntent CreatePaymentIntent()
+        private PaymentIntent CreatePaymentIntent(int amount)
         {
-            var Metadata = new Dictionary<string, string>
+            var metadata = new Dictionary<string, string>
             {
                 {"order_id", "12345678"},
                 {"customer_name", "John Doe"},
-                {"customer_email", "jd@example.com"}
+                {"customer_email", Util.CreateEmailAddress()}
             };
             
             var options = new PaymentIntentCreateOptions
             {
                 // Stripe works in pennies
-                Amount = 10000,
+                Amount = amount,
                 Currency = "gbp",
                 
                 PaymentMethodTypes = new List<string>
@@ -46,7 +56,7 @@ namespace store_front.Controllers
                 },
                 
                 // Metadata can contain useful information such as order IDs, customer details etc.
-                Metadata = Metadata,
+                Metadata = metadata,
                 
                 // The ReceiptEmail is used if you would like Stripe to automatically send Payment receipts
                 // Email templates can be configured in Stripe

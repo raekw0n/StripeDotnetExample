@@ -17,6 +17,8 @@ namespace store_front
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
+            // We set the API key globally so we don't need to keep setting it on a per-request basis.
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe")["SecretKey"];
         }
 
@@ -26,6 +28,7 @@ namespace store_front
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddSingleton<IConfiguration>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,7 +55,7 @@ namespace store_front
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Payment}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
