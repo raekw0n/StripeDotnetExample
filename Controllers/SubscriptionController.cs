@@ -11,6 +11,7 @@ namespace store_front.Controllers
          *
          * (Shortcut PoC, at this point the user has already been created as a customer and has confirmed their payment method)
          */
+        [Route("Subscription/Index")]
         public IActionResult Index()
         {
             return View();
@@ -41,13 +42,13 @@ namespace store_front.Controllers
             var options = new SubscriptionCreateOptions
             {
                 // "here's one I made earlier"
-                Customer = "",
+                Customer = "cus_HzuApdn0CYYoT4",
                 Items = new List<SubscriptionItemOptions>
                 {
                     new SubscriptionItemOptions
                     {
                         // "here's one I made earlier"
-                        Price = "",
+                        Price = "price_1HPuN1FnOG8jwOnxcAEuadHe",
                     }
                 }
             };
@@ -55,7 +56,7 @@ namespace store_front.Controllers
             var service = new SubscriptionService();
             service.Create(options);
 
-            return RedirectToAction("Index", "Payment");
+            return RedirectToAction("Confirmed", "Payment");
         }
     }
 }
