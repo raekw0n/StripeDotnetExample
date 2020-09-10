@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<div>
+    <form action="#" method="post" id="payment-form">
+        <div class="form-group">
+            <label for="address_1">Address Line 1</label>
+            <input class="form-control" type="text" id="address_1" name="address_1" value=""
+                   placeholder="First line of your address">
+        </div>
+        <div class="form-group">
+            <label for="address_2">Address Line 2</label>
+            <input class="form-control" type="text" id="address_2" name="address_2" value=""
+                   placeholder="Second line of your address">
+        </div>
+        <div class="form-group">
+            <label for="town_city">Town/City</label>
+            <input class="form-control" type="text" id="town_city" name="town_city" value=""
+                   placeholder="Town or city">
+        </div>
+        <div class="form-group mb-5">
+            <label for="postcode">Postcode</label>
+            <input class="form-control" type="text" id="postcode" name="postcode" value=""
+                   placeholder="Postcode">
+        </div>
+        <div class="form-group">
+            <div class="card-elements">
+                <label for="card-number">
+                    Credit or debit card number
+                </label>
+                <div id="card-number" class="stripe-element"></div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col">
+                <label for="card-expiry">Expiry Date</label>
+                <div id="card-expiry" class="stripe-element"></div>
+            </div>
+            <div class="col">
+                <label for="card-cvc">CVC</label>
+                <div id="card-cvc" class="stripe-element"></div>
+            </div>
+        </div>
+        <div>
+            <p>Amount £100.00</p>
+        </div>
+        <div class="form-group d-flex align-items-center">
+            <div>
+                <button id="submit-payment" class="btn btn-primary mr-0 mr-md-2" data-secret="@ViewBag.IntentSecret">
+                    Pay Now
+                </button>
+                <button id="cancel-payment" class="btn btn-danger">
+                    Cancel Order
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Stripe can be imported via its own CDN, or imported as an ES6 module using NPM -->
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe("");
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // Instantiate stripe elements
+        let elements = stripe.elements();
+        
+        // Set some base style for the card elements
+        let elementStyles = {
+            base: {
+                color: '#32325D',
+                fontSize: '1rem',
+                fontWeight: '400',
+                lineHeight: '1.5',
+                fontSmoothing: 'antialiased',
+                '::placeholder': {
+                    color: '#8e8e8e',
+                },
+                ':-webkit-autofill': {
+                    color: '#e39f48',
+                },
+            },
+            invalid: {
+                color: '#E25950',
+                '::placeholder': {
+                    color: '#FFCCA5',
+                },
+            },
+        };
+        
+        // Set various classes for the card elements to manage state
+        let elementClasses = {
+            focus: 'focused',
+            empty: 'empty',
+            invalid: 'invalid',
+        };
+        
+        // In this instance we are creating card elements individually, this gives us greater control over how to display
+        // each input field.
+        let cardNumber = elements.create('cardNumber', {
+            style: elementStyles,
+            classes: elementClasses,
+        });
+        cardNumber.mount('#card-number');
+        
+        
+        let cardExpiry = elements.create('cardExpiry', {
+            style: elementStyles,
+            classes: elementClasses,
+        });
+        cardExpiry.mount('#card-expiry');
+        
+        
+        let cardCvc = elements.create('cardCvc', {
+            style: elementStyles,
+            classes: elementClasses,
+        });
+        cardCvc.mount('#card-cvc');
+        
+        
+        const form = document.getElementById('payment-form');
+        const btn = document.getElementById('submit-payment');
+        const secret = btn.getAttribute('data-secret');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            stripe.confirmCardPayment(secret, {
+                payment_method: {
+                    card: cardNumber,
+                    billing_details: {
+                        address: {
+                            "city": document.querySelector('#town_city').value,
+                            "country": "GB",
+                            "line1": document.querySelector('#address_1').value,
+                            "line2": document.querySelector('#address_2').value,
+                            "postal_code": document.querySelector('#postcode').value,
+                        },
+                        name: 'John Doe',
+                        email: 'jd@example.com',
+                        phone: '07522267722'
+                    }
+                }
+            }).then(result => {
+                if (result.error) {
+                    console.log(result);
+                } else {
+                    if (result.paymentIntent.status === 'succeeded') {
+                        window.location = '/Payment/Confirmed'
+                    } else {
+                        console.log(result);
+                    }
+                }
+            });
+        });
+    });
+</script>
