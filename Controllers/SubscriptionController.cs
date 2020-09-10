@@ -42,13 +42,13 @@ namespace store_front.Controllers
             var options = new SubscriptionCreateOptions
             {
                 // "here's one I made earlier"
-                Customer = "cus_HzuApdn0CYYoT4",
+                Customer = "",
                 Items = new List<SubscriptionItemOptions>
                 {
                     new SubscriptionItemOptions
                     {
                         // "here's one I made earlier"
-                        Price = "price_1HPuN1FnOG8jwOnxcAEuadHe",
+                        Price = "",
                     }
                 }
             };
